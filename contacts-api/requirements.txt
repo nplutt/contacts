@@ -1,2 +1,4 @@
+marshmallow~=2.15
+psycopg2~=2.7
 SQLAlchemy~=1.2
 SQLAlchemy-Searchable~=1.0
