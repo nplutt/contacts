@@ -1,6 +1,6 @@
 import logging
 
-from chalice import Response, BadRequestError, ConflictError, ChaliceViewError
+from chalice import Response, BadRequestError, ConflictError, ChaliceViewError, NotFoundError
 from marshmallow.exceptions import ValidationError
 from psycopg2 import IntegrityError
 from sqlalchemy.dialects.postgresql import insert
@@ -50,19 +50,20 @@ def create_user(json_body):
             logger.warning("User or user data already exists, received error: {}".format(e))
             raise ConflictError(e)
         except Exception as e:
-            logger.critical("Something went wrong, received error: {}".format(e))
+            logger.critical("Something went wrong when retrieving user data, "
+                            "received error: {}".format(e))
             raise ChaliceViewError(e)
 
         logger.info("Data successfully inserted")
 
     return Response(body=None,
                     status_code=201,
-                    headers=dict(Location='/user/{}'.format(str(user_info['user_id']))))
+                    headers=dict(Location='/users/{}'.format(str(user_info['user_id']))))
 
 
 def get_user_info(user_id):
     """
-
+    
     """
     try:
         UUID(user_id)
@@ -75,7 +76,11 @@ def get_user_info(user_id):
         result = session.query(
             UserData.data_type,
             UserData.data
-        ).filter(UserData.user_id == user_id)
+        ).filter_by(user_id=user_id)
+
+        if not result:
+            logger.warning("User {} was not found in the database".format(user_id))
+            raise NotFoundError
 
         logger.info("User data retrieved")
 

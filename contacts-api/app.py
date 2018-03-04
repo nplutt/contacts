@@ -15,14 +15,14 @@ def index():
     return {'hello': 'world'}
 
 
-@app.route('/user', methods=['POST'], cors=True)
+@app.route('/users', methods=['POST'], cors=True)
 def path_user():
     logger.info("Received request at /user...")
     if app.current_request.method == 'POST':
         return create_user(app.current_request.json_body)
 
 
-@app.route('/user/{user_id}', methods=['GET'], cors=True)
+@app.route('/users/{user_id}', methods=['GET'], cors=True)
 def path_user_user_id(user_id):
     logger.info("Received request at /user/{userid}...")
     if app.current_request.method == 'GET':
