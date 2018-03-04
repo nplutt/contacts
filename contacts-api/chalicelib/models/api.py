@@ -1,12 +1,13 @@
-from copy import deepcopy
-from inflection import underscore
 from uuid import uuid4
-from marshmallow import Schema, fields, post_load, pre_load, post_dump, pre_dump
+
+from inflection import underscore
+from marshmallow import Schema, fields, post_load, pre_load, pre_dump
 
 
 class MetaData(Schema):
     data = fields.String(required=True)
     data_type = fields.String(required=True,
+                              load_from='dataType',
                               dump_to='dataType')
     user_id = fields.UUID(required=False,
                           load_from='userId',
@@ -27,26 +28,30 @@ class User(Schema):
     last_name = fields.String(required=True,
                               load_from='lastName',
                               dump_to='lastName')
-    # meta_data = fields.Raw()
     meta_data = fields.Nested(MetaData,
                               many=True,
+                              load_from='metaData',
                               dump_to='metaData')
 
     @pre_load
     def unpack_meta_data(self, data):
         """
-        Unpacks the dictionary of meta data fields for a given user and formats
-        it for the database.
+        Unpacks the the firstName, lastName, and emailAddress fields and
+        adds them to the metaData list.
         Args:
             data (dict): validated json request body
         Returns:
-            (dict): user model with structured
+            (dict): user model with all meta data
         """
-        meta_data = data.pop('metaData', None)
-        flat_data = deepcopy(data)
-        flat_data.update(meta_data)
-        meta_data = [dict(data_type=str(d), data=str(flat_data[d])) for d in flat_data]
-        data['meta_data'] = meta_data
+        if not data.get('metaData'):
+            data['metaData'] = []
+
+        for key, value in data.iteritems():
+            if key in ['emailAddress', 'firstName', 'lastName']:
+                data[key] = value.lower()
+            if key is not 'metaData':
+                data['metaData'].append(dict(data_type=str(key),
+                                             data=str(value)))
         return data
 
     @post_load(pass_original=False)
@@ -61,33 +66,45 @@ class User(Schema):
                 (list of dict): a list of user meta data
         """
         user_id = data.get('user_id')
-        meta_data = data.pop('meta_data', None)
+        meta_data = data.pop('meta_data')
         for d in meta_data:
             d['user_id'] = user_id
         return data, meta_data
 
-    @pre_dump
-    def map_meta_data_to_model(self, data):
-        model = dict()
-        removed_indexes = []
-        results = [d._asdict() for d in data.all()]
+    @pre_dump(pass_many=True)
+    def map_meta_data_to_model(self, data, pass_many):
+        """
+        Maps a user's meta data to the return model with email address,
+        first name, and last name
+        Args:
+            data (dict): dictionary containing the results of the query
+        Returns:
+            dict: valid data that can be mapped to the User model
+        """
+        user_data = dict()
+        results = [d._asdict() for d in data]
 
         for index, r in enumerate(results):
+            user_id = str(r.pop('user_id'))
+
+            if not user_data.get(user_id):
+                user_data[user_id] = dict()
+            if not user_data[user_id].get('meta_data'):
+                user_data[user_id]['meta_data'] = []
+
             if r['data_type'] in ['emailAddress', 'firstName', 'lastName']:
-                model[underscore(r['data_type'])] = r['data']
-                removed_indexes.append(index)
+                user_data[user_id][underscore(r['data_type'])] = r['data']
+            else:
+                user_data[user_id]['meta_data'].append(r)
 
-        model['meta_data'] = results
+        user_data_list = []
+        for key, value in user_data.iteritems():
+            value['user_id'] = key
+            user_data_list.append(value)
 
-        for count, i in enumerate(removed_indexes):
-            model['meta_data'].pop(i - count)
+        if pass_many:
+            return user_data_list
+        else:
+            return user_data_list[0]
 
-        return model
 
-    @post_dump
-    def map_meta_data_array_to_json(self, data):
-        meta_data = data.pop('metaData')
-        data['metaData'] = dict()
-        for d in meta_data:
-            data['metaData'][d['dataType']] = d['data']
-        return data

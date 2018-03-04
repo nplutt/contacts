@@ -2,4 +2,4 @@ inflection~=0.3
 marshmallow~=2.15
 psycopg2~=2.7
 SQLAlchemy~=1.2
-SQLAlchemy-Searchable~=1.0
+SQLAlchemy-Searchable==0.10.1 # Pinned to lower version because latest doesn't work...

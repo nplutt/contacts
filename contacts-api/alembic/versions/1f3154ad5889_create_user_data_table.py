@@ -36,6 +36,8 @@ def upgrade():
         sa.ForeignKeyConstraint(['user_id'], ['users.user_id'])
     )
 
+    # op.create_index('ix_data_search_vector', 'user_data', ['search_vector'], postgresql_using='gin')
+
     sync_trigger(conn=conn,
                  table_name='user_data',
                  tsvector_column='search_vector',

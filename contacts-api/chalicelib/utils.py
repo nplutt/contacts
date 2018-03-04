@@ -1,9 +1,14 @@
+import logging
+
 from contextlib import contextmanager
 from os import getenv
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker, configure_mappers
 from sqlalchemy.engine.url import URL
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def get_database_url(username='DB_USER', password='DB_PASSWORD'):

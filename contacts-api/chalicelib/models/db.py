@@ -3,13 +3,10 @@ from uuid import uuid4
 from sqlalchemy import Column, func, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.types import DateTime, String
-from sqlalchemy_searchable import make_searchable
 from sqlalchemy_utils.types import TSVectorType
 
 from chalicelib.singletons import Base
 from chalicelib.utils import database_username
-
-# make_searchable()
 
 
 class Users(Base):
@@ -31,7 +28,7 @@ class UserData(Base):
     data_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     data_type = Column(String, nullable=False)
     data = Column(String, nullable=False)
-    search_vector = Column(TSVectorType('meta_data'), nullable=False)
+    search_vector = Column(TSVectorType(), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     add_name = Column(String, default=database_username)
     add_date = Column(DateTime, server_default=func.now())
