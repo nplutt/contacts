@@ -30,7 +30,7 @@ class UserData(Base):
 
     data_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     data_type = Column(String, nullable=False)
-    meta_data = Column(String, nullable=False)
+    data = Column(String, nullable=False)
     search_vector = Column(TSVectorType('meta_data'), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
     add_name = Column(String, default=database_username)
