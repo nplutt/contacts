@@ -1,11 +1,22 @@
 from __future__ import with_statement
+
+import os
+import sys
+from logging.config import fileConfig
+
 from alembic import context
 from sqlalchemy import create_engine
-from logging.config import fileConfig
-from importlib import import_module
-from chalicelib.singletons import Base
-from chalicelib.utils import get_database_url
-import_module('chalicelib.models.db')
+
+try:
+    from chalicelib.singletons import Base
+    from chalicelib.utils import get_database_url
+except ImportError:
+    sys.path.append(os.getcwd())
+    from chalicelib.singletons import Base
+    from chalicelib.utils import get_database_url
+
+# from importlib import import_module
+# import_module('chalicelib.models.db')
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -54,7 +65,9 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    connectable = create_engine(get_database_url())
+    connectable = create_engine(
+        get_database_url(username='MASTER_DB_USER', password='MASTER_DB_PASSWORD')
+    )
 
     with connectable.connect() as connection:
         context.configure(

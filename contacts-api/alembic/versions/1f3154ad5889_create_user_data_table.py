@@ -28,6 +28,10 @@ def upgrade():
         sa.Column('meta_data', sa.String(), nullable=False),
         sa.Column('search_vector', TSVectorType('meta_data'), nullable=False),
         sa.Column('user_id', postgresql.UUID(), nullable=False),
+        sa.Column('add_name', sa.String(), nullable=True),
+        sa.Column('add_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
+        sa.Column('last_maintenance_name', sa.String(), nullable=True),
+        sa.Column('last_maintenance_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
         sa.PrimaryKeyConstraint('data_id'),
         sa.ForeignKeyConstraint(['user_id'], ['users.user_id'])
     )
