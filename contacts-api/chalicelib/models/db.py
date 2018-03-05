@@ -2,6 +2,7 @@ from uuid import uuid4
 
 from sqlalchemy import Column, func, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.types import DateTime, String
 from sqlalchemy_utils.types import TSVectorType
 
@@ -29,8 +30,10 @@ class UserData(Base):
     data_type = Column(String, nullable=False)
     data = Column(String, nullable=False)
     search_vector = Column(TSVectorType(), nullable=False)
-    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id'), nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     add_name = Column(String, default=database_username)
     add_date = Column(DateTime, server_default=func.now())
     last_maintenance_name = Column(String, default=database_username, onupdate=database_username)
     last_maintenance_date = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+    users = relationship(Users, backref=backref('user_data', cascade='delete'))

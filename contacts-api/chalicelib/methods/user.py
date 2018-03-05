@@ -99,7 +99,7 @@ def get_users(query_params):
         logger.info("Applying offset and limit on subquery...")
         search_sub_query = search_sub_query.distinct().offset(offset).limit(limit).subquery()
 
-        logger.info("Users info from database...")
+        logger.info("Retrieving users info from database...")
         result = session.query(
             UserData.data_type,
             UserData.data,
@@ -160,3 +160,32 @@ def get_user(user_id):
             data=user_data
         )
 
+
+def delete_user(user_id):
+    """
+    Deletes user's records from the database
+    Args:
+        user_id (str): a users uuid
+    Returns:
+        None
+    Raises:
+        BadRequestError: if the user_id isn't a valid uuid
+        NotFoundError: if no record can be found for the given user id
+    """
+    try:
+        UUID(user_id)
+    except ValueError as e:
+        logger.warning("Invalid uuid, received error: {}".format(e))
+        raise BadRequestError(e)
+
+    with db_session() as session:
+        logger.info("Deleting user data from users and user_data...")
+        count = session.query(Users).filter_by(user_id=user_id).delete()
+
+        if not count:
+            logger.warning("User {} was not found in the database".format(user_id))
+            raise NotFoundError
+
+        return Response(body=None,
+                        status_code=204,
+                        headers=dict())

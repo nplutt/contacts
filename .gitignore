@@ -6,7 +6,10 @@ __pycache__/
 .pytest_cache/
 # C extensions
 *.so
-
+#Remove this...
+*.chalice/
+config.json
+*vendor/
 # Distribution / packaging
 .Python
 env/

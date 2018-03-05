@@ -49,7 +49,7 @@ class User(Schema):
         for key, value in data.iteritems():
             if key in ['emailAddress', 'firstName', 'lastName']:
                 data[key] = value.lower()
-            if key is not 'metaData':
+            if key != 'metaData':
                 data['metaData'].append(dict(data_type=str(key),
                                              data=str(value)))
         return data

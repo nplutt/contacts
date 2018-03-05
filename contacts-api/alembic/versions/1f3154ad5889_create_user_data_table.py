@@ -33,10 +33,8 @@ def upgrade():
         sa.Column('last_maintenance_name', sa.String(), nullable=True),
         sa.Column('last_maintenance_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
         sa.PrimaryKeyConstraint('data_id'),
-        sa.ForeignKeyConstraint(['user_id'], ['users.user_id'])
+        sa.ForeignKeyConstraint(['user_id'], ['users.user_id'], ondelete='CASCADE')
     )
-
-    # op.create_index('ix_data_search_vector', 'user_data', ['search_vector'], postgresql_using='gin')
 
     sync_trigger(conn=conn,
                  table_name='user_data',
