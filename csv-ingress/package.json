@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/nplutt/contacts#readme",
   "dependencies": {
+    "async": "^2.6.0",
     "aws-sdk": "^2.205.0",
     "axios": "^0.18.0",
     "csv-parser": "^1.12.0"

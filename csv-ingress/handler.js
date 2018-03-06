@@ -1,81 +1,123 @@
 'use strict';
-const csv = require('csv-parser');
+const async = require('async');
 const axios = require('axios');
 const AWS = require('aws-sdk');
+const csv = require('csv-parser');
 const Readable = require('stream').Readable;
 
 const s3 = new AWS.S3();
 const lambda = new AWS.Lambda();
-const bufferStream = new Readable;
 const bucketName = process.env.BUCKET_NAME;
-// const fileName = '279d3dbd-60c7-46f4-90a7-5f94d6451f24.csv';
-const fileName = 'test_file_1.csv';
 const url = 'https://eaa2qsuq62.execute-api.us-west-2.amazonaws.com/api/users';
 
 
-async function main(event, context, callback) {
+exports.handler = function(event, context, callback) {
   console.info('Received event body of ', event);
 
-  const fileData = await getFile(fileName);
-  console.info(fileData);
+  let s3Key = null;
+  let index = 0;
+  let fileIndex = 0;
+  let processedRecords = 0;
 
-  let requiredHeaderNames = {
-    firstName: null,
-    lastName: null,
-    email: null
-  };
-
-  bufferStream.push(fileData.Body);
-  bufferStream.push(null);
-
-  bufferStream
-    .pipe(csv())
-    .on('headers', function(headerList) {
-      requiredHeaderNames = getRequiredHeaders(headerList, requiredHeaderNames);
-
-      if (requiredHeaderNames.firstName === null ||
-          requiredHeaderNames.lastName === null ||
-          requiredHeaderNames.email === null) {
-        console.error("Invalid csv file, missing either first name, last name, or email address");
-        throw new Error("Invalid csv file headers")
-      }
-    })
-    .on('data', function (data) {
-      pushRecord(data, requiredHeaderNames);
-      // console.log(data);
-      // console.log(requiredHeaderNames);
-    });
-
-  callback(null, 'Success!');
-}
-
-
-async function getFile(bucketKey) {
-  try {
-    const params = {
-      Bucket: 'contacts-nplutt',
-      Key: bucketKey
-    };
-    return await s3.getObject(params).promise();
-  } catch(err) {
-    console.log(err);
-  }
-}
-
-
-async function pushRecord(row, requiredHeaderNames) {
-  if (validRow(row, requiredHeaderNames)) {
-    const data = formatRowData(row, requiredHeaderNames);
-    try {
-      console.log('POST to ', url);
-      const response = await axios.post(url, data);
-      console.log(response.data);
-    } catch(err) {
-      console.log(err);
-    }
+  if (event.Records) {
+    s3Key = event.Records[0].s3.object.key;
   } else {
-    console.warn("Invalid row found, skipping saving to database.")
+    s3Key = event.s3Key;
+    index = event.index;
   }
+
+  async.waterfall([
+    function getFile(next) {
+      const params = {
+        Bucket: bucketName,
+        Key: s3Key
+      };
+      s3.getObject(params, (err, data) => {
+        next(err, data);
+      });
+    },
+    function processData(fileData, next) {
+      let calls = [];
+      let requiredHeaderNames = {
+        firstName: null,
+        lastName: null,
+        email: null
+      };
+
+      const bufferStream = new Readable;
+      bufferStream.push(fileData.Body);
+      bufferStream.push(null);
+
+      bufferStream
+        .pipe(csv())
+        .on('headers', function(headerList) {
+          requiredHeaderNames = getRequiredHeaders(headerList, requiredHeaderNames);
+
+          if (requiredHeaderNames.firstName === null ||
+            requiredHeaderNames.lastName === null ||
+            requiredHeaderNames.email === null) {
+            console.error('Invalid csv file, missing either first name, last name, or email address');
+            throw new Error('Invalid csv file headers')
+          }
+        })
+        .on('data', function (row) {
+          if (fileIndex >= (index + processedRecords) && processedRecords < 50 && validRow(row, requiredHeaderNames)) {
+            const data = formatRowData(row, requiredHeaderNames);
+            calls.push(makeCall(url, data));
+            processedRecords ++;
+          }
+          fileIndex ++;
+        })
+        .on('end', function() {
+          axios.all(calls).then((res) => {
+            console.log(res);
+            next();
+          }).catch((err) => {
+            console.info(err);
+            next();
+          });
+        });
+    },
+    function invokeLambda(next) {
+      console.info("Sleeping for 10 seconds so as not to overwhelm the db");
+      index += processedRecords;
+
+      const params = {
+        FunctionName: 'csv-ingress-dev-csv-ingress',
+        Payload: JSON.stringify({
+          index: index,
+          s3Key: s3Key
+        }),
+        InvocationType: 'Event'
+      };
+
+      if ((processedRecords + index) < fileIndex){
+        setTimeout(() => {
+          console.info("Invoking lambda to continue processing records");
+          lambda.invoke(params, (err, res) => {
+            if (err) {
+              console.info(err);
+            }
+            next(err, res);
+          });
+        }, 10000);
+      } else {
+        next();
+      }
+    }
+  ], (err, res) => {
+    if (err) {
+      console.error('Failed to process contact file.');
+    } else {
+      console.info('Succeeded in processing 50 records')
+    }
+    callback(null, 'Success!')
+  });
+};
+
+
+function makeCall(url, data) {
+  return axios.post(url, data)
 }
 
 
@@ -133,9 +175,13 @@ function getRequiredHeaders(headers, requiredHeaderNames) {
 
 
 function validRow(row, requiredHeaderNames) {
-  return row[requiredHeaderNames.firstName] !== null && row[requiredHeaderNames.firstName] !== undefined &&
+  const valid = row[requiredHeaderNames.firstName] !== null && row[requiredHeaderNames.firstName] !== undefined &&
     row[requiredHeaderNames.lastName] !== null && row[requiredHeaderNames.lastName] !== undefined &&
-    row[requiredHeaderNames.email] !== null && row[requiredHeaderNames.email] !== undefined
-}
+    row[requiredHeaderNames.email] !== null && row[requiredHeaderNames.email] !== undefined;
 
-main(null, null, null);
+  if (!valid) {
+    console.warn('Invalid row found, skipping saving to database.');
+  }
+
+  return valid
+}

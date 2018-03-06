@@ -10,6 +10,8 @@ from sqlalchemy.engine.url import URL
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
+engines = {}
+
 
 def get_database_url(username='DB_USER', password='DB_PASSWORD'):
     """
@@ -39,10 +41,14 @@ def db_session():
     Returns:
         None
     """
-    engine = create_engine(get_database_url(),
-                           pool_recycle=1,
-                           pool_size=1,
-                           max_overflow=50)
+    try:
+        engine = engines[get_database_url()]
+    except KeyError:
+        engine = create_engine(get_database_url(),
+                               pool_recycle=1,
+                               pool_size=1,
+                               max_overflow=50)
+        engines[get_database_url()] = engine
     configure_mappers()
     session = scoped_session(sessionmaker(bind=engine))
 
@@ -54,6 +60,7 @@ def db_session():
         raise e
     finally:
         session.remove()
+        session.close()
 
 
 def database_username():
