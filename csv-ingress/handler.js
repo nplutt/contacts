@@ -61,7 +61,7 @@ exports.handler = function(event, context, callback) {
           }
         })
         .on('data', function (row) {
-          if (fileIndex >= (index + processedRecords) && processedRecords < 100 && validRow(row, requiredHeaderNames)) {
+          if (fileIndex >= (index + processedRecords) && processedRecords < 50 && validRow(row, requiredHeaderNames)) {
             const data = formatRowData(row, requiredHeaderNames);
             calls.push(makeCall(url, data));
             processedRecords ++;
@@ -109,7 +109,7 @@ exports.handler = function(event, context, callback) {
     if (err) {
       console.error('Failed to process contact file.');
     } else {
-      console.info('Succeeded in processing 100 records')
+      console.info('Succeeded in processing 50 records')
     }
     callback(null, 'Success!')
   });
