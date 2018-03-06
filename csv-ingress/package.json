@@ -1,0 +1,24 @@
+{
+  "name": "csv-ingress",
+  "version": "1.0.0",
+  "description": "Lambda triggered by S3 that takes records from CSV file and uploads them to the contacts-api",
+  "main": "handler.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nplutt/contacts.git"
+  },
+  "author": "Nick Plutt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nplutt/contacts/issues"
+  },
+  "homepage": "https://github.com/nplutt/contacts#readme",
+  "dependencies": {
+    "aws-sdk": "^2.205.0",
+    "axios": "^0.18.0",
+    "csv-parser": "^1.12.0"
+  }
+}
