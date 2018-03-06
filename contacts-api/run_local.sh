@@ -7,6 +7,7 @@ export MASTER_DB_PASSWORD="master_local_docker_password"
 export DB_USER="local_docker_user"
 export DB_PASSWORD="local_docker_password"
 export DB_NAME="postgres"
+export BUCKET_NAME="contacts-nplutt"
 
 docker run -d -p 127.0.0.1:0:5432/tcp -e "POSTGRES_PASSWORD=${MASTER_DB_PASSWORD}" \
     -e "POSTGRES_USER=${MASTER_DB_USER}" postgres

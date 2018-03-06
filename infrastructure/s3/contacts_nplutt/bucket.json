@@ -1,0 +1,15 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "This cloudformation template creates an s3 bucket for storingall of uploaded contact files.",
+    "Resources": {
+        "ContactsNPlutt": {
+            "Properties": {
+                "BucketName": "contacts-nplutt",
+                "VersioningConfiguration": {
+                    "Status": "Enabled"
+                }
+            },
+            "Type": "AWS::S3::Bucket"
+        }
+    }
+}

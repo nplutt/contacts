@@ -34,7 +34,7 @@ def create_user(json_body):
         user_info, user_meta_data = User(strict=True).load(json_body).data
     except ValidationError as e:
         logger.warning("Invalid json body, received error: {}".format(e))
-        raise BadRequestError(e)
+        raise BadRequestError
 
     with db_session() as session:
         try:
@@ -50,11 +50,11 @@ def create_user(json_body):
             session.commit()
         except IntegrityError as e:
             logger.warning("User or user data already exists, received error: {}".format(e))
-            raise ConflictError(e)
+            raise ConflictError
         except Exception as e:
             logger.critical("Something went wrong when retrieving user data, "
                             "received error: {}".format(e))
-            raise ChaliceViewError(e)
+            raise ChaliceViewError
 
         logger.info("Data successfully inserted")
 
@@ -134,7 +134,7 @@ def get_user(user_id):
         UUID(user_id)
     except ValueError as e:
         logger.warning("Invalid uuid, received error: {}".format(e))
-        raise BadRequestError(e)
+        raise BadRequestError
 
     with db_session() as session:
         logger.info("Retrieving user information...")
@@ -176,16 +176,17 @@ def delete_user(user_id):
         UUID(user_id)
     except ValueError as e:
         logger.warning("Invalid uuid, received error: {}".format(e))
-        raise BadRequestError(e)
+        raise BadRequestError
 
     with db_session() as session:
-        logger.info("Deleting user data from users and user_data...")
+        logger.info("Deleting user data from users and user_data tables...")
         count = session.query(Users).filter_by(user_id=user_id).delete()
 
         if not count:
             logger.warning("User {} was not found in the database".format(user_id))
             raise NotFoundError
 
+        logger.info("User successfully deleted from database")
         return Response(body=None,
                         status_code=204,
                         headers=dict())
