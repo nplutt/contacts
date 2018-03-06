@@ -18,7 +18,13 @@ def upload_file(raw_body):
     Writes the file to /tmp/, uploads the file to S3, and deletes the
     file from /tmp/
     Args:
-        raw_body ()
+        raw_body: the csv file's raw content
+    Raises:
+        BadRequestError: if the raw_body is empty
+        ChaliceViewError: if something goes wrong with writting the file
+                          or uploading it to S3
+    Returns:
+        None
     """
     if not raw_body:
         logger.warning("Received empty raw body, bad request.")

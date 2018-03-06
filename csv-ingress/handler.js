@@ -61,7 +61,7 @@ exports.handler = function(event, context, callback) {
           }
         })
         .on('data', function (row) {
-          if (fileIndex >= (index + processedRecords) && processedRecords < 50 && validRow(row, requiredHeaderNames)) {
+          if (fileIndex >= (index + processedRecords) && processedRecords < 100 && validRow(row, requiredHeaderNames)) {
             const data = formatRowData(row, requiredHeaderNames);
             calls.push(makeCall(url, data));
             processedRecords ++;
@@ -79,7 +79,7 @@ exports.handler = function(event, context, callback) {
         });
     },
     function invokeLambda(next) {
-      console.info("Sleeping for 10 seconds so as not to overwhelm the db");
+      console.info("Sleeping for 2 seconds so as not to overwhelm the db");
       index += processedRecords;
 
       const params = {
@@ -100,7 +100,7 @@ exports.handler = function(event, context, callback) {
             }
             next(err, res);
           });
-        }, 10000);
+        }, 2000);
       } else {
         next();
       }
@@ -109,7 +109,7 @@ exports.handler = function(event, context, callback) {
     if (err) {
       console.error('Failed to process contact file.');
     } else {
-      console.info('Succeeded in processing 50 records')
+      console.info('Succeeded in processing 100 records')
     }
     callback(null, 'Success!')
   });
