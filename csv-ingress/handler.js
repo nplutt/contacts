@@ -79,7 +79,7 @@ exports.handler = function(event, context, callback) {
         });
     },
     function invokeLambda(next) {
-      console.info("Sleeping for 5 seconds so as not to overwhelm the db");
+      console.info("Sleeping for 10 seconds so as not to overwhelm the db");
       index += processedRecords;
 
       const params = {
@@ -100,7 +100,7 @@ exports.handler = function(event, context, callback) {
             }
             next(err, res);
           });
-        }, 5000);
+        }, 10000);
       } else {
         next();
       }
