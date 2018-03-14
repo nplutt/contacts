@@ -24,12 +24,12 @@ class TestGetUsersInfo(TestCase):
             {'emailAddress': 'nplutt@gmail.com',
              'firstName': 'Nick',
              'lastName': 'Plutt',
-             'metaData': [{'data': '200 Grand Avenue', 'dataType': 'address'}],
+             'metaData': [{'fieldData': '200 Grand Avenue', 'fieldType': 'address'}],
              'userId': '9f1b15e8-dca7-427d-816d-44f519010c6b'},
             {'emailAddress': 'nohn@gmail.com',
              'firstName': 'John',
              'lastName': 'Bones',
-             'metaData': [{'data': '612-584-9642', 'dataType': 'phone number'}],
+             'metaData': [{'fieldData': '612-584-9642', 'fieldType': 'phone number'}],
              'userId': '161e71f0-085c-4607-9631-b8a964f63fc4'}]
 
     def test_get_users_search_with_spaces(self):
@@ -42,7 +42,7 @@ class TestGetUsersInfo(TestCase):
             {'emailAddress': 'nplutt@gmail.com',
              'firstName': 'Nick',
              'lastName': 'Plutt',
-             'metaData': [{'data': '200 Grand Avenue', 'dataType': 'address'}],
+             'metaData': [{'fieldData': '200 Grand Avenue', 'fieldType': 'address'}],
              'userId': '9f1b15e8-dca7-427d-816d-44f519010c6b'}]
 
     def test_get_users_search_with_dashes(self):
@@ -55,12 +55,12 @@ class TestGetUsersInfo(TestCase):
             {'emailAddress': 'chew@gmail.com',
              'firstName': 'Chew',
              'lastName': 'Bacca',
-             'metaData': [{'data': '612-584-5496', 'dataType': 'phone number'}],
+             'metaData': [{'fieldData': '612-584-5496', 'fieldType': 'phone number'}],
              'userId': '00042aa2-2575-4746-bf1d-35b9579f05ad'},
             {'emailAddress': 'nohn@gmail.com',
              'firstName': 'John',
              'lastName': 'Bones',
-             'metaData': [{'data': '612-584-9642', 'dataType': 'phone number'}],
+             'metaData': [{'fieldData': '612-584-9642', 'fieldType': 'phone number'}],
              'userId': '161e71f0-085c-4607-9631-b8a964f63fc4'}]
 
     def test_get_users_limit_works(self):
@@ -73,7 +73,7 @@ class TestGetUsersInfo(TestCase):
             {'emailAddress': 'nohn@gmail.com',
              'firstName': 'John',
              'lastName': 'Bones',
-             'metaData': [{'data': '612-584-9642', 'dataType': 'phone number'}],
+             'metaData': [{'fieldData': '612-584-9642', 'fieldType': 'phone number'}],
              'userId': '161e71f0-085c-4607-9631-b8a964f63fc4'}]
 
     def test_get_users_offset_works(self):
@@ -86,7 +86,7 @@ class TestGetUsersInfo(TestCase):
             {'emailAddress': 'nplutt@gmail.com',
              'firstName': 'Nick',
              'lastName': 'Plutt',
-             'metaData': [{'data': '200 Grand Avenue', 'dataType': 'address'}],
+             'metaData': [{'fieldData': '200 Grand Avenue', 'fieldType': 'address'}],
              'userId': '9f1b15e8-dca7-427d-816d-44f519010c6b'}]
 
     def test_get_users_search_field_filter_works(self):
@@ -107,7 +107,7 @@ class TestGetUsersInfo(TestCase):
             {'emailAddress': 'nplutt@gmail.com',
              'firstName': 'Nick',
              'lastName': 'Plutt',
-             'metaData': [{'data': '200 Grand Avenue', 'dataType': 'address'}],
+             'metaData': [{'fieldData': '200 Grand Avenue', 'fieldType': 'address'}],
              'userId': '9f1b15e8-dca7-427d-816d-44f519010c6b'}]
 
     def test_get_users_no_query_params_works(self):

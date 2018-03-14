@@ -27,8 +27,8 @@ class UserData(Base):
     __tablename__ = 'user_data'
 
     data_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    data_type = Column(String, nullable=False)
-    data = Column(String, nullable=False)
+    field_type = Column(String, nullable=False)
+    field_data = Column(String, nullable=False)
     search_vector = Column(TSVectorType(), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     add_name = Column(String, default=database_username)

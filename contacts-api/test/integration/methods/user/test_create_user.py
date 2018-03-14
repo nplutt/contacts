@@ -20,8 +20,8 @@ class TestCreateUser(TestCase):
                     firstName='Joe',
                     lastName='Schmo',
                     metaData=[
-                        dict(dataType='favorite food',
-                             data='tacos')
+                        dict(fieldType='favorite food',
+                             fieldData='tacos')
                     ])
         response_1 = self.lg.handle_request(method='POST',
                                             path='/users',
@@ -42,13 +42,28 @@ class TestCreateUser(TestCase):
         body['userId'] = ANY
         assert json.loads(response_2['body'])['data'] == body
 
+    def test_create_user_fails_on_badrequest(self):
+        body = dict(emailAddress='nplutt@gmail.com',
+                    firstName='Joe',
+                    lastName='Schmo',
+                    metaData=[
+                        dict(fieldType='favorite food')
+                    ])
+        response_1 = self.lg.handle_request(method='POST',
+                                            path='/users',
+                                            headers={
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body=json.dumps(body))
+        assert response_1['statusCode'] == 400
+
     def test_create_user_fails_on_conflict(self):
         body = dict(emailAddress='nplutt@gmail.com',
                     firstName='Nick',
                     lastName='Plutt',
                     metaData=[
-                        dict(dataType='favorite food',
-                             data='tacos')
+                        dict(fieldType='favorite food',
+                             fieldData='tacos')
                     ])
         response = self.lg.handle_request(method='POST',
                                           path='/users',

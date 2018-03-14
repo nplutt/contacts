@@ -94,15 +94,15 @@ def get_users(query_params):
         if search_field:
             logger.info("Filtering results by searched field...")
             search_field = unquote(search_field)
-            search_sub_query = search_sub_query.filter_by(data_type=search_field)
+            search_sub_query = search_sub_query.filter_by(field_type=search_field)
 
         logger.info("Applying offset and limit on subquery...")
         search_sub_query = search_sub_query.distinct().offset(offset).limit(limit).subquery()
 
         logger.info("Retrieving users info from database...")
         result = session.query(
-            UserData.data_type,
-            UserData.data,
+            UserData.field_type,
+            UserData.field_data,
             UserData.user_id
         ).filter(UserData.user_id == search_sub_query.c.user_id)
 
@@ -139,8 +139,8 @@ def get_user(user_id):
     with db_session() as session:
         logger.info("Retrieving user information...")
         result = session.query(
-            UserData.data_type,
-            UserData.data,
+            UserData.field_type,
+            UserData.field_data,
             UserData.user_id
         ).filter_by(user_id=user_id)
 

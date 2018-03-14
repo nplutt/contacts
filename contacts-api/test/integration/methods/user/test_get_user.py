@@ -26,7 +26,7 @@ class TestGetUser(TestCase):
             'emailAddress': 'nplutt@gmail.com',
             'firstName': 'Nick',
             'lastName': 'Plutt',
-            'metaData': [{'data': '200 Grand Avenue', 'dataType': 'address'}],
+            'metaData': [{'fieldData': '200 Grand Avenue', 'fieldType': 'address'}],
             'userId': '9f1b15e8-dca7-427d-816d-44f519010c6b'}
 
     def test_get_user_raises_not_found(self):
