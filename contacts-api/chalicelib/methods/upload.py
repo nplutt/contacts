@@ -48,9 +48,18 @@ def upload_file(raw_body):
 
     finally:
         logger.info("Removing file {} from tmp".format(file_name))
-        remove(file_path)
+        _remove_file(file_path)
 
     logger.info("File successfully uploaded to S3")
     return Response(body=None,
                     status_code=201,
                     headers=dict())
+
+
+def _remove_file(file_path):
+    try:
+        remove(file_path)
+    except OSError as e:
+        logger.critical("Failed to remove file {}. Received an error message"
+                        " of: {}".format(file_path, e))
+        raise ChaliceViewError

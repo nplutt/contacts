@@ -79,7 +79,7 @@ class User(Schema):
         """
         Splits model up into user and metadata and sets user id field for the meta data.
         Args:
-            data (dict): {'user_id': UUID('d18203ab-3311-4e44-aedf-2a9170188266'),
+            data (dict): {'user_id': UUID('befed934-3f35-4b81-ac41-d1ca8039daeb'),
                           'email_address': 'nplutt@gmail.com',
                           'first_name': 'nick',
                           'last_name': 'plutt',
