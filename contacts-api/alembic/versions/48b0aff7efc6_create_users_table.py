@@ -19,7 +19,7 @@ depends_on = None
 def upgrade():
     op.create_table(
         'users',
-        sa.Column('user_id', postgresql.UUID(), unique=True, nullable=False),
+        sa.Column('user_id', postgresql.UUID(), nullable=False),
         sa.Column('email_address', sa.String(), nullable=False),
         sa.Column('first_name', sa.String(), nullable=False),
         sa.Column('last_name', sa.String(), nullable=False),
@@ -27,7 +27,8 @@ def upgrade():
         sa.Column('add_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
         sa.Column('last_maintenance_name', sa.String(), nullable=True),
         sa.Column('last_maintenance_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
-        sa.PrimaryKeyConstraint('email_address', 'first_name', 'last_name')
+        sa.PrimaryKeyConstraint('user_id'),
+        sa.UniqueConstraint('email_address', 'first_name', 'last_name', name='email_first_last_ux')
     )
 
 
