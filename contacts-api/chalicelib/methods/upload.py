@@ -1,6 +1,7 @@
 import boto3
 import logging
 
+from botocore.exceptions import ClientError
 from os import getenv, remove
 from chalice import BadRequestError, ChaliceViewError, Response
 from uuid import uuid4
@@ -41,16 +42,30 @@ def upload_file(raw_body):
         logger.info("Uploading file {} to s3 bucket...".format(file_name))
         s3.upload_file(file_path, BUCKET, file_name)
 
-    except Exception as e:
-        logger.critical("Something went wrong when uploading file to s3."
-                        "Received error message of: {}".format(e))
+    except OSError as e:
+        logger.critical("Something went wrong when writing file {}"
+                        "to /tmp/. Received error of: {}".format(file_name, e))
+        raise ChaliceViewError
+
+    except ClientError as e:
+        logger.critical("Something went wrong when uploading file {}"
+                        "to S3. Received error of: {}".format(file_path, e))
         raise ChaliceViewError
 
     finally:
         logger.info("Removing file {} from tmp".format(file_name))
-        remove(file_path)
+        _remove_file(file_path)
 
     logger.info("File successfully uploaded to S3")
     return Response(body=None,
                     status_code=201,
                     headers=dict())
+
+
+def _remove_file(file_path):
+    try:
+        remove(file_path)
+    except OSError as e:
+        logger.critical("Failed to remove file {}. Received an error message"
+                        " of: {}".format(file_path, e))
+        raise ChaliceViewError

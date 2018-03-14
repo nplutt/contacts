@@ -20,8 +20,8 @@ are more records available.
     "emailAddress": "nplutt@gmail.com",
     "metaData": [
       {
-        "dataType": "phone number",
-        "data": "612-709-5521"
+        "fieldType": "phone number",
+        "fieldData": "612-709-5521"
       }
   },
   "GET": {
@@ -37,8 +37,8 @@ are more records available.
         "emailAddress": "nplutt@gmail.com",
         "metaData": [
           {
-            "dataType": "phone number",
-            "data": "612-709-5521"
+            "fieldType": "phone number",
+            "fieldData": "612-709-5521"
           }
         ]
       }
@@ -62,8 +62,8 @@ are more records available.
       "emailAddress": "nplutt@gmail.com",
       "metaData": [
         {
-          "dataType": "phone number",
-          "data": "612-709-5521"
+          "fieldType": "phone number",
+          "fieldData": "612-709-5521"
         }
       ]
     }

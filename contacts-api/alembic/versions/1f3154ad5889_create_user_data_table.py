@@ -24,9 +24,9 @@ def upgrade():
     op.create_table(
         'user_data',
         sa.Column('data_id', postgresql.UUID(), nullable=False),
-        sa.Column('data_type', sa.String(), nullable=False),
-        sa.Column('data', sa.String(), nullable=False),
-        sa.Column('search_vector', TSVectorType('data'), nullable=False),
+        sa.Column('field_type', sa.String(), nullable=False),
+        sa.Column('field_data', sa.String(), nullable=False),
+        sa.Column('search_vector', TSVectorType('field_data'), nullable=False),
         sa.Column('user_id', postgresql.UUID(), nullable=False),
         sa.Column('add_name', sa.String(), nullable=True),
         sa.Column('add_date', sa.DateTime(), server_default=sa.text('now()'), nullable=True),
@@ -39,7 +39,7 @@ def upgrade():
     sync_trigger(conn=conn,
                  table_name='user_data',
                  tsvector_column='search_vector',
-                 indexed_columns=['data'])
+                 indexed_columns=['field_data'])
 
 
 def downgrade():
